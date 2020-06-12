@@ -1,0 +1,16 @@
+diff -ur ref/src/librustc_llvm/build.rs patched/src/librustc_llvm/build.rs
+--- ref/src/librustc_llvm/build.rs	2018-12-05 00:41:40.000000000 +0100
++++ patched/src/librustc_llvm/build.rs	2018-12-30 22:54:16.972938493 +0100
+@@ -183,7 +183,10 @@
+     }
+     cmd.args(&components);
+ 
+-    for lib in output(&mut cmd).split_whitespace() {
++    let mut libs = output(&mut cmd).split_whitespace().map(|str| str.to_string()).collect::<Vec<_>>();
++    libs.push(String::from("-lffi"));
++    for lib in libs {
++        let lib: &str = lib.as_ref();
+         let name = if lib.starts_with("-l") {
+             &lib[2..]
+         } else if lib.starts_with("-") {
+
