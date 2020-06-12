@@ -4,9 +4,12 @@ Name: rust
 
 %global rustc_version 1.44.0
 %global cargo_version 1.44.0
-# %global rust_triple arm-unknown-linux-gnueabi
-# %global rust_triple i686-unknown-linux-gnu
+
+%ifarch %ix86
+%global rust_triple i686-unknown-linux-gnu
+%else
 %global rust_triple armv7-unknown-linux-gnueabihf
+%endif
 
 Version:        %{rustc_version}
 Release:        1
