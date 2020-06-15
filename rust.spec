@@ -275,17 +275,8 @@ rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-MIT
 rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-THIRD-PARTY
 rm -f %{buildroot}%{_docdir}/%{name}/*.old
 
-# Sanitize the HTML documentation
-find %{buildroot}%{_docdir}/%{name}/html -empty -delete
-find %{buildroot}%{_docdir}/%{name}/html -type f -exec chmod -x '{}' '+'
-
 # Create the path for crate-devel packages
 mkdir -p %{buildroot}%{_datadir}/cargo/registry
-
-# Cargo no longer builds its own documentation
-# https://github.com/rust-lang/cargo/pull/4904
-mkdir -p %{buildroot}%{_docdir}/cargo
-ln -sT ../rust/html/cargo/ %{buildroot}%{_docdir}/cargo/html
 
 %if %without lldb
 rm -f %{buildroot}%{_bindir}/rust-lldb
