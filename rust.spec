@@ -40,7 +40,8 @@ BuildRequires:  gcc-c++
 BuildRequires:  ncurses-devel
 # BuildRequires:  curl
 # BuildRequires:  pkgconfig(libcurl)
-BuildRequires:  pkgconfig(liblzma)
+# build.rs and boostrap/config.rs => cargo_native_static?
+# BuildRequires:  pkgconfig(liblzma)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(zlib)
 BuildRequires:  python3-base
@@ -170,7 +171,6 @@ rm -rf src/tools/lldb
 # rm -rf vendor/curl-sys/curl/
 rm -rf vendor/jemalloc-sys/jemalloc/
 rm -rf vendor/libz-sys/src/zlib/
-rm -rf vendor/lzma-sys/xz-*/
 rm -rf vendor/openssl-src/openssl/
 
 	# rename bundled license for packaging
