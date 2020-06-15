@@ -150,8 +150,6 @@ Summary:        Rust's package manager and build tool
 Version:        %{cargo_version}
 # Cargo is not much use without Rust
 Requires:       rust
-# For tests:
-BuildRequires:  git
 
 %description -n cargo
 Cargo is a tool that allows Rust projects to declare their various dependencies
