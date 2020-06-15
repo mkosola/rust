@@ -136,7 +136,8 @@ programs.
 
 %setup -q -n %{bootstrap_root} -T -b 1
 ./install.sh --components=rustc,rust-std-%{rust_triple} \
-  --prefix=%{local_rust_root} --disable-ldconfig
+  --prefix=%{local_rust_root} --disable-ldconfig \
+  --without=cargo
 test -f '%{local_rust_root}/bin/rustc'
 
 %setup -q -n %{rustc_package}
