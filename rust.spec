@@ -286,7 +286,8 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %{python} ./x.py test --no-fail-fast || :
 
 
-%ldconfig_scriptlets
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 
 %files
