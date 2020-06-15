@@ -132,15 +132,6 @@ programs.
 %endif
 
 
-%package src
-Summary:        Sources for the Rust standard library
-BuildArch:      noarch
-
-%description src
-This package includes source files for the Rust standard library.  It may be
-useful as a reference for code completion tools in various editors.
-
-
 %prep
 
 %setup -q -n %{bootstrap_root} -T -b 1
@@ -335,8 +326,3 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %{_bindir}/rust-lldb
 %{rustlibdir}/etc/lldb_*.py*
 %endif
-
-
-%files src
-%dir %{rustlibdir}
-%{rustlibdir}/src
