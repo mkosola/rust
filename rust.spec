@@ -485,8 +485,3 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %files analysis
 %{rustlibdir}/%{rust_triple}/analysis/
 
-
-%changelog
-* Thu Jun 12 2020 Raine Makelainen <raine.makelainen@jolla.com> - 1.44.0-1
-- Integrate 1.44.0.
-
