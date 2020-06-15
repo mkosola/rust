@@ -131,13 +131,25 @@ programs.
 
 %endif
 
+%package -n cargo
+Summary:        Rust's package manager and build tool
+Version:        %{cargo_version}
+# Cargo is not much use without Rust
+Requires:       rust
+
+%description -n cargo
+Cargo is a tool that allows Rust projects to declare their various dependencies
+and ensure that you'll always get a repeatable build.
+
+
 
 %prep
 
 %setup -q -n %{bootstrap_root} -T -b 1
-./install.sh --components=rustc,rust-std-%{rust_triple} \
+./install.sh --components=cargo,rustc,rust-std-%{rust_triple} \
   --prefix=%{local_rust_root} --disable-ldconfig \
-  --without=cargo
+  --without=clippy,rls,rustfmt
+test -f '%{local_rust_root}/bin/cargo'
 test -f '%{local_rust_root}/bin/rustc'
 
 %setup -q -n %{rustc_package}
@@ -212,6 +224,7 @@ export RUSTFLAGS="%{rustflags}"
   --enable-extended \
   --enable-vendor \
   %{?codegen_units_std} \
+  --tools=cargo \
   --llvm-root=/usr/
 
 %{python} ./x.py build
@@ -285,7 +298,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 
 # The results are not stable on koji, so mask errors and just log it.
 %{python} ./x.py test --no-fail-fast || :
-
+%{python} ./x.py test --no-fail-fast cargo || :
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
@@ -309,6 +322,16 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %dir %{rustlibdir}/%{rust_triple}
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.rlib
+
+%files -n cargo
+%license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
+%doc src/tools/cargo/README.md
+%{_bindir}/cargo
+%{_mandir}/man1/cargo*.1*
+%{_sysconfdir}/bash_completion.d/cargo
+%{_datadir}/zsh/site-functions/_cargo
+%dir %{_datadir}/cargo
+%dir %{_datadir}/cargo/registry
 
 
 %files debugger-common
