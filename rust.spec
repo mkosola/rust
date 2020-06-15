@@ -166,7 +166,8 @@ rm -rf src/tools/lld
 rm -rf src/tools/lldb
 
 # Remove other unused vendored libraries
-rm -rf vendor/curl-sys/curl/
+# TODO: This is do be fixed still to have http2 enabled.
+# rm -rf vendor/curl-sys/curl/
 rm -rf vendor/jemalloc-sys/jemalloc/
 rm -rf vendor/libz-sys/src/zlib/
 rm -rf vendor/lzma-sys/xz-*/
