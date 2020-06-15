@@ -2,7 +2,6 @@
 # https://forge.rust-lang.org/platform-support.html
 
 %global rustc_version 1.44.0
-%global cargo_version 1.44.0
 
 %ifarch %ix86
 %global rust_triple i686-unknown-linux-gnu
@@ -133,75 +132,6 @@ programs.
 %endif
 
 
-%package doc
-Summary:        Documentation for Rust
-# NOT BuildArch:      noarch
-# Note, while docs are mostly noarch, some things do vary by target_arch.
-# Koji will fail the build in rpmdiff if two architectures build a noarch
-# subpackage differently, so instead we have to keep its arch.
-
-%description doc
-This package includes HTML documentation for the Rust programming language and
-its standard library.
-
-
-%package -n cargo
-Summary:        Rust's package manager and build tool
-Version:        %{cargo_version}
-# Cargo is not much use without Rust
-Requires:       rust
-
-%description -n cargo
-Cargo is a tool that allows Rust projects to declare their various dependencies
-and ensure that you'll always get a repeatable build.
-
-
-%package -n cargo-doc
-Summary:        Documentation for Cargo
-BuildArch:      noarch
-# Cargo no longer builds its own documentation
-# https://github.com/rust-lang/cargo/pull/4904
-Requires:       rust-doc = %{version}-%{release}
-
-%description -n cargo-doc
-This package includes HTML documentation for Cargo.
-
-
-%package -n rustfmt
-Summary:        Tool to find and fix Rust formatting issues
-Requires:       cargo
-
-%description -n rustfmt
-A tool for formatting Rust code according to style guidelines.
-
-
-%package -n rls
-Summary:        Rust Language Server for IDE integration
-Requires:       rust-analysis
-# /usr/bin/rls is dynamically linked against internal rustc libs
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description -n rls
-The Rust Language Server provides a server that runs in the background,
-providing IDEs, editors, and other tools with information about Rust programs.
-It supports functionality such as 'goto definition', symbol search,
-reformatting, and code completion, and enables renaming and refactorings.
-
-
-%package -n clippy
-Summary:        Lints to catch common mistakes and improve your Rust code
-Requires:       cargo
-# /usr/bin/clippy-driver is dynamically linked against internal rustc libs
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-# The component/package was clippy-preview until Rust 1.31.
-Obsoletes:      clippy-preview <= 0.0.212
-Provides:       clippy-preview = %{version}-%{release}
-
-%description -n clippy
-A collection of lints to catch common mistakes and improve your Rust code.
-
-
 %package src
 Summary:        Sources for the Rust standard library
 BuildArch:      noarch
@@ -211,22 +141,11 @@ This package includes source files for the Rust standard library.  It may be
 useful as a reference for code completion tools in various editors.
 
 
-%package analysis
-Summary:        Compiler analysis data for the Rust standard library
-Requires:       rust-std-static%{?_isa} = %{version}-%{release}
-
-%description analysis
-This package contains analysis data files produced with rustc's -Zsave-analysis
-feature for the Rust standard library. The RLS (Rust Language Server) uses this
-data to provide information about the Rust standard library.
-
-
 %prep
 
 %setup -q -n %{bootstrap_root} -T -b 1
-./install.sh --components=cargo,rustc,rust-std-%{rust_triple} \
+./install.sh --components=rustc,rust-std-%{rust_triple} \
   --prefix=%{local_rust_root} --disable-ldconfig
-test -f '%{local_rust_root}/bin/cargo'
 test -f '%{local_rust_root}/bin/rustc'
 
 %setup -q -n %{rustc_package}
@@ -293,17 +212,17 @@ export RUSTFLAGS="%{rustflags}"
   --enable-local-rebuild \
   --enable-llvm-link-shared \
   --enable-optimize \
+  --disable-docs \
+  --disable-compiler-docs \
   --disable-rpath \
   --disable-codegen-tests \
   %{enable_debuginfo} \
   --enable-extended \
   --enable-vendor \
   %{?codegen_units_std} \
-  --tools=cargo \
   --llvm-root=/usr/
 
 %{python} ./x.py build
-%{python} ./x.py doc
 
 
 %install
@@ -374,10 +293,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 
 # The results are not stable on koji, so mask errors and just log it.
 %{python} ./x.py test --no-fail-fast || :
-%{python} ./x.py test --no-fail-fast cargo || :
-%{python} ./x.py test --no-fail-fast clippy || :
-%{python} ./x.py test --no-fail-fast rls || :
-%{python} ./x.py test --no-fail-fast rustfmt || :
 
 
 %ldconfig_scriptlets
@@ -388,10 +303,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %license vendor/backtrace-sys/src/libbacktrace/LICENSE-libbacktrace
 %doc README.md
 %{_bindir}/rustc
-%{_bindir}/rustdoc
 %{_libdir}/*.so
-%{_mandir}/man1/rustc.1*
-%{_mandir}/man1/rustdoc.1*
 %dir %{rustlibdir}
 %dir %{rustlibdir}/%{rust_triple}
 %dir %{rustlibdir}/%{rust_triple}/lib
@@ -425,64 +337,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %endif
 
 
-%files doc
-%docdir %{_docdir}/%{name}
-%dir %{_docdir}/%{name}
-%dir %{_docdir}/%{name}/html
-%{_docdir}/%{name}/html/*/
-%{_docdir}/%{name}/html/*.html
-%{_docdir}/%{name}/html/*.css
-%{_docdir}/%{name}/html/*.ico
-%{_docdir}/%{name}/html/*.js
-%{_docdir}/%{name}/html/*.png
-%{_docdir}/%{name}/html/*.svg
-%{_docdir}/%{name}/html/*.woff
-%license %{_docdir}/%{name}/html/*.txt
-%license %{_docdir}/%{name}/html/*.md
-
-
-%files -n cargo
-%license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
-%doc src/tools/cargo/README.md
-%{_bindir}/cargo
-%{_mandir}/man1/cargo*.1*
-%{_sysconfdir}/bash_completion.d/cargo
-%{_datadir}/zsh/site-functions/_cargo
-%dir %{_datadir}/cargo
-%dir %{_datadir}/cargo/registry
-
-
-%files -n cargo-doc
-%docdir %{_docdir}/cargo
-%dir %{_docdir}/cargo
-%{_docdir}/cargo/html
-
-
-%files -n rustfmt
-%{_bindir}/rustfmt
-%{_bindir}/cargo-fmt
-%doc src/tools/rustfmt/{README,CHANGELOG,Configurations}.md
-%license src/tools/rustfmt/LICENSE-{APACHE,MIT}
-
-
-%files -n rls
-%{_bindir}/rls
-%doc src/tools/rls/{README.md,COPYRIGHT,debugging.md}
-%license src/tools/rls/LICENSE-{APACHE,MIT}
-
-
-%files -n clippy
-%{_bindir}/cargo-clippy
-%{_bindir}/clippy-driver
-%doc src/tools/clippy/{README.md,CHANGELOG.md}
-%license src/tools/clippy/LICENSE-{APACHE,MIT}
-
-
 %files src
 %dir %{rustlibdir}
 %{rustlibdir}/src
-
-
-%files analysis
-%{rustlibdir}/%{rust_triple}/analysis/
-
