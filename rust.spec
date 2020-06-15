@@ -279,8 +279,9 @@ export RUSTFLAGS="%{rustflags}"
 
 # full debuginfo is exhausting memory; just do libstd for now
 # https://github.com/rust-lang/rust/issues/45854
-%define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
+# %define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
 # %define enable_debuginfo --disable-debuginfo --disable-debuginfo-only-std --disable-debuginfo-tools --disable-debuginfo-lines
+%define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2 --disable-debuginfo --disable-debuginfo-only-std --disable-debuginfo-tools --disable-debuginfo-lines
 
 %define codegen_units_std --set rust.codegen-units-std=1
 
