@@ -39,8 +39,8 @@ BuildRequires:  cmake
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  ncurses-devel
-BuildRequires:  curl
-BuildRequires:  pkgconfig(libcurl)
+# BuildRequires:  curl
+# BuildRequires:  pkgconfig(libcurl)
 BuildRequires:  pkgconfig(liblzma)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(zlib)
