@@ -283,6 +283,9 @@ rm -f %{buildroot}%{_bindir}/rust-lldb
 rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %endif
 
+# Remove unwanted documentation files
+rm -f %{buildroot}%{_bindir}/rustdoc
+rm -f %{buildroot}%{_mandir}/man1
 
 %check
 %{?cmake_path:export PATH=%{cmake_path}:$PATH}
@@ -319,7 +322,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
 %doc src/tools/cargo/README.md
 %{_bindir}/cargo
-%{_mandir}/man1/cargo*.1*
 %{_sysconfdir}/bash_completion.d/cargo
 %{_datadir}/zsh/site-functions/_cargo
 %dir %{_datadir}/cargo
