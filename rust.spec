@@ -285,7 +285,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 
 # Remove unwanted documentation files
 rm -f %{buildroot}%{_bindir}/rustdoc
-rm -f %{buildroot}%{_mandir}/man1
+rm -fr %{buildroot}%{_mandir}/man1
 
 %check
 %{?cmake_path:export PATH=%{cmake_path}:$PATH}
