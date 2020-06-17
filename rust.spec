@@ -1,7 +1,7 @@
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
 
-%global rustc_version 1.44.0
+%global rust_version 1.44.0
 
 %ifarch %ix86
 %global rust_triple i686-unknown-linux-gnu
@@ -15,23 +15,23 @@
 %bcond_without lldb
 
 Name:           rust
-Version:        %{rustc_version}
+# TODO: Suffix version at the end with +git1
+Version:        %{rust_version}
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
 URL:            https://www.rust-lang.org
 
-
-%global rustc_package rustc-%{rustc_version}-src
-Source0:        https://static.rust-lang.org/dist/rustc-%{rustc_version}-src.tar.gz
-Source1:        https://static.rust-lang.org/dist/rust-%{rustc_version}-%{rust_triple}.tar.gz
+%global rustc_package rustc-%{rust_version}-src
+Source0:        https://static.rust-lang.org/dist/rustc-%{rust_version}-src.tar.gz
+Source1:        https://static.rust-lang.org/dist/rust-%{rust_version}-%{rust_triple}.tar.gz
 
 Patch1: 0001-Use-a-non-existent-test-path-instead-of-clobbering-d.patch
 
-%global bootstrap_root rust-%{rustc_version}-%{rust_triple}
+%global bootstrap_root rust-%{rust_version}-%{rust_triple}
 %global local_rust_root %{_builddir}/%{bootstrap_root}/usr
-%global bootstrap_source rust-%{rustc_version}-%{rust_triple}.tar.gz
+%global bootstrap_source rust-%{rust_version}-%{rust_triple}.tar.gz
 
 BuildRequires:  make
 BuildRequires:  cmake
@@ -39,9 +39,9 @@ BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  ncurses-devel
 # BuildRequires:  curl
-# BuildRequires:  pkgconfig(libcurl)
+BuildRequires:  pkgconfig(libcurl)
 # build.rs and boostrap/config.rs => cargo_native_static?
-# BuildRequires:  pkgconfig(liblzma)
+BuildRequires:  pkgconfig(liblzma)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(zlib)
 BuildRequires:  python3-base
@@ -56,11 +56,11 @@ BuildRequires:  gdb
 
 
 # Virtual provides for folks who attempt "dnf install rustc"
-Provides:       rustc = %{version}-%{release}
-Provides:       rustc%{?_isa} = %{version}-%{release}
+Provides:       rustc = %{rust_version}-%{release}
+Provides:       rustc = %{rust_version}-%{release}
 
 # Always require our exact standard library
-Requires:       %{name}-std-static%{?_isa} = %{version}-%{release}
+Requires:       %{name}-std-static = %{rust_version}-%{release}
 
 # The C compiler is needed at runtime just for linking.  Someday rustc might
 # invoke the linker directly, and then we'll only need binutils.
@@ -110,7 +110,7 @@ This package includes the common functionality for %{name}-gdb and %{name}-lldb.
 Summary:        GDB pretty printers for Rust
 BuildArch:      noarch
 Requires:       gdb
-Requires:       %{name}-debugger-common = %{version}-%{release}
+Requires:       %{name}-debugger-common = %{rust_version}-%{release}
 
 %description gdb
 This package includes the rust-gdb script, which allows easier debugging of Rust
@@ -124,7 +124,7 @@ Summary:        LLDB pretty printers for Rust
 BuildArch:      noarch
 Requires:       lldb
 Requires:       python3-lldb
-Requires:       %{name}-debugger-common = %{version}-%{release}
+Requires:       %{name}-debugger-common = %{rust_version}-%{release}
 
 %description lldb
 This package includes the rust-lldb script, which allows easier debugging of Rust
@@ -134,7 +134,6 @@ programs.
 
 %package -n cargo
 Summary:        Rust's package manager and build tool
-Version:        %{cargo_version}
 # Cargo is not much use without Rust
 Requires:       rust
 
@@ -171,9 +170,13 @@ rm -rf src/tools/lldb
 # rm -rf vendor/curl-sys/curl/
 rm -rf vendor/jemalloc-sys/jemalloc/
 rm -rf vendor/libz-sys/src/zlib/
+rm -rf vendor/lzma-sys/xz-*/
 rm -rf vendor/openssl-src/openssl/
 
-	# rename bundled license for packaging
+# This only affects the transient rust-installer, but let it use our dynamic xz-libs
+sed -i.lzma -e '/LZMA_API_STATIC/d' src/bootstrap/tool.rs
+
+# rename bundled license for packaging
 cp -a vendor/backtrace-sys/src/libbacktrace/LICENSE{,-libbacktrace}
 
 # Static linking to distro LLVM needs to add -lffi
