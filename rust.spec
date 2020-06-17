@@ -28,6 +28,7 @@ Source0:        https://static.rust-lang.org/dist/rustc-%{rust_version}-src.tar.
 Source1:        https://static.rust-lang.org/dist/rust-%{rust_version}-%{rust_triple}.tar.gz
 
 Patch1: 0001-Use-a-non-existent-test-path-instead-of-clobbering-d.patch
+Patch2: llvm-targets.patch
 
 %global bootstrap_root rust-%{rust_version}-%{rust_triple}
 %global local_rust_root %{_builddir}/%{bootstrap_root}/usr
@@ -147,14 +148,14 @@ and ensure that you'll always get a repeatable build.
 
 %setup -q -n %{bootstrap_root} -T -b 1
 ./install.sh --components=cargo,rustc,rust-std-%{rust_triple} \
-  --prefix=%{local_rust_root} --disable-ldconfig \
-  --without=clippy,rls,rustfmt
+  --prefix=%{local_rust_root} --disable-ldconfig
 test -f '%{local_rust_root}/bin/cargo'
 test -f '%{local_rust_root}/bin/rustc'
 
 %setup -q -n %{rustc_package}
 
 %patch1 -p1
+%patch2 -p0
 
 sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
 
@@ -230,6 +231,8 @@ export RUSTFLAGS="%{rustflags}"
   %{?codegen_units_std} \
   --tools=cargo \
   --llvm-root=/usr/
+
+# --set="parallel-compiler=true"
 
 %{python} ./x.py build
 
