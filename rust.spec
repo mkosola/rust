@@ -228,7 +228,6 @@ export RUSTFLAGS="%{rustflags}"
   %{enable_debuginfo} \
   --enable-extended \
   --enable-vendor \
-  %{?codegen_units_std} \
   --tools=cargo \
   --llvm-root=/usr/ \
   --enable-parallel-compiler
