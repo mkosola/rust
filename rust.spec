@@ -230,7 +230,8 @@ export RUSTFLAGS="%{rustflags}"
   --enable-vendor \
   %{?codegen_units_std} \
   --tools=cargo \
-  --llvm-root=/usr/
+  --llvm-root=/usr/ \
+  --enable-parallel-compiler
 
 # --set="parallel-compiler=true"
 
